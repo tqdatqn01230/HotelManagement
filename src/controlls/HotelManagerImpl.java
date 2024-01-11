@@ -175,7 +175,7 @@ public class HotelManagerImpl implements HotelManager {
     public void searchByName(String name) {
         List<Hotel> searchedHotels = hotelMap.values()
                 .stream()
-                .filter(hotel -> hotel.getName().toLowerCase().equals(name.toLowerCase().trim()))
+                .filter(hotel -> hotel.getName().toLowerCase().contains(name.toLowerCase().trim()))
                 .collect(Collectors.toList());
         if (searchedHotels.isEmpty()) {
             System.out.println("No Hotel Found!!");

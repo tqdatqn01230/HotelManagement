@@ -38,7 +38,5 @@ public class Menu {
            int max = optionList.size();
            return Utilities.getInt(("Choose [1..."+max+"]: " ), 0, max+1);
        }
-       
-       // Khi nhập vào số max thì sex thoát menu này , max do mình tự đặt lúc code 
-       // VD :"Choose [1...7]" nhập 7 để thoát , nhập các số tuừ 1-->6 
+
 }
