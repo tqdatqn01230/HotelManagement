@@ -23,9 +23,12 @@ import models.Hotel;
 
 public class HotelManagerImpl implements HotelManager {
 
-    Map<String, Hotel> hotelMap = new HashMap<>();
+    Map<String, Hotel> hotelMap;
     static Scanner sc = new Scanner(System.in);
 
+    public HotelManagerImpl() {
+        hotelMap = loadHotel();
+    }
     @Override
     public void add() {
         int getchoice;
@@ -45,11 +48,12 @@ public class HotelManagerImpl implements HotelManager {
 
             int available_room = Utilities.getInt("Enter available room (int): ", 0, 100000);
             String address = Utilities.getString("Enter Hotel's address: ");
-            String phone = Utilities.getPhone("Enter Hotel's hotline(9 numbers): ");
-            String rating = Utilities.getString("Enter Hotel's rating: ");
+            String phone = Utilities.getPhone("Enter Hotel's hotline(9-11 numbers): ");
+            int ratingInt = Utilities.getInt("Enter Hotel's rating:", 1,10);
+            String rating = ratingInt + "";
             Hotel hotel = new Hotel(ID, name, available_room, address, phone, rating);
 
-            hotelMap = loadHotel();
+           
             hotelMap.put(ID, hotel);
 
             saveHotel(hotelMap);
@@ -68,7 +72,7 @@ public class HotelManagerImpl implements HotelManager {
 
     @Override
     public void delete() {
-        hotelMap = loadHotel();
+       
         String ID;
         do {
             ID = Utilities.getUserInputString("^H\\d{2}$", "Enter hotel's Id (format: Hxx) : ", "Hotel's ID must follow format Hxx (0 <= x <=9) !", null);
@@ -78,24 +82,20 @@ public class HotelManagerImpl implements HotelManager {
                 break;
             }
         } while (true);   // id phai ton tai moi nhan
-        int getChoice = Utilities.getInt("Do you want to delete this hotel? (Yes:1 , No:0)", 0, 2);
+        int getChoice = Utilities.getInt("Do you want to delete this hotel? (Yes:1 , No:0): ", 0, 2);
         if (getChoice == 0) {
             System.out.println("Delete failed!!!");
-
+        } else {
+            hotelMap.remove(ID);
+            saveHotel(hotelMap);
+            System.out.println("Delete success!!!");
         }
-
-        hotelMap.remove(ID);
-        saveHotel(hotelMap);
-        System.out.println("Delete success!!!");
-
     }
 
     @Override
     public void update() {
-        Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter the Hotel's id_Hotel:");
-        String hotelId = scanner.nextLine();
+        String hotelId = Utilities.getUserInputString("^H\\d{2}$","Enter the Hotel's id_Hotel (Hxx):", "Wrong format!", null);
 
         Hotel hotelToUpdate = findHotelById(hotelId);
         if (hotelToUpdate == null) {
@@ -105,47 +105,22 @@ public class HotelManagerImpl implements HotelManager {
 
         System.out.println("Enter new information for the hotel (press Enter to keep the old information):");
         System.out.println("-------------------------------------------------------------------------------");
-        System.out.print("New hotel name: ");
-        String newName = scanner.nextLine();
-        if (!newName.isEmpty()) {
-            hotelToUpdate.setName(newName);
-        }
 
-        System.out.print("Available Rooms: ");
-        String newAvailableRoomsStr = scanner.nextLine();
-        if (!newAvailableRoomsStr.isEmpty()) {
-            try {
-                int newAvailableRooms = Integer.parseInt(newAvailableRoomsStr);
-                hotelToUpdate.setAvailable_room(newAvailableRooms);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input for available rooms. Please enter a valid number.");
-            }
-        }
+        String newName = Utilities.getString("New hotel name: ", hotelToUpdate.getName());
+        hotelToUpdate.setName(newName);
 
-        System.out.print("New Address: ");
-        String newAddress = scanner.nextLine();
-        if (!newAddress.isEmpty()) {
-            hotelToUpdate.setAddress(newAddress);
-        }
+        int newAvailableRooms= Utilities.getInt("New Available Rooms: ", 1, 10000000, hotelToUpdate.getAvailable_room());
+        hotelToUpdate.setAvailable_room(newAvailableRooms);
 
-        System.out.print("New Phone: ");
-        String newPhone = scanner.nextLine();
-        if (!newPhone.isEmpty()) {
-            if (newPhone.matches("\\d{9}")) {
-                hotelToUpdate.setPhone(newPhone);
-            } else {
-                System.out.println("Invalid phone number. Please enter exactly 9 digits.");
+        String newAddress = Utilities.getString("New Address : ", hotelToUpdate.getAddress());
+        hotelToUpdate.setAddress(newAddress);
 
-            }
-        }
+        String newPhone = Utilities.getPhone("New Phone: ", hotelToUpdate.getPhone());
+        hotelToUpdate.setPhone(newPhone);
 
-        System.out.print("New Rating: ");
-        String newRating = scanner.nextLine();
-        if (!newRating.isEmpty()) {
-            hotelToUpdate.setRating(newRating);
-        }
-        hotelMap = loadHotel();
-        hotelMap.remove(hotelToUpdate.getId());
+        int newRatingInt = Utilities.getInt("New Rating Rooms: ", 1, 10, Integer.parseInt(hotelToUpdate.getRating()));
+        hotelToUpdate.setRating(newRatingInt + "");
+        
         hotelMap.put(hotelToUpdate.getId(), hotelToUpdate);
         saveHotel(hotelMap);
         System.out.println("Hotel information updated successfully:");
@@ -163,7 +138,7 @@ public class HotelManagerImpl implements HotelManager {
 
     @Override
     public void checkExist(String id) {
-
+       
         if (hotelMap.containsKey(id)) {
             System.out.println("Exist Hotel");
         } else {
@@ -173,6 +148,7 @@ public class HotelManagerImpl implements HotelManager {
 
     @Override
     public void searchByName(String name) {
+       
         List<Hotel> searchedHotels = hotelMap.values()
                 .stream()
                 .filter(hotel -> hotel.getName().toLowerCase().contains(name.toLowerCase().trim()))
@@ -227,7 +203,7 @@ public class HotelManagerImpl implements HotelManager {
 
     @Override
     public void sort() {
-        hotelMap = loadHotel();
+       
         List<Hotel> list = hotelMap.values().stream()
                 .sorted((hotel1, hotel2) -> hotel2.getName().compareTo(hotel1.getName()))
                 .collect(Collectors.toList());

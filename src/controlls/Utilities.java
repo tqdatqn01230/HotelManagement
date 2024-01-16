@@ -42,12 +42,18 @@ public class Utilities {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static int getInt(String sms, int min, int max) {
-        int n = 0;
-
+        return getInt(sms, min,max, null);
+    }
+    public static int getInt(String sms, int min, int max, Integer defaultWhenBlank) {
+        int n;
         while (true) {
             try {
                 System.out.print(sms);
-                n = Integer.parseInt(scanner.nextLine());
+                String value = scanner.nextLine();
+                if (defaultWhenBlank != null && value.isEmpty()) {
+                    return defaultWhenBlank;
+                }
+                n = Integer.parseInt(value);
                 if (n >= min && n < max) {
                     return n;
                 } else {
@@ -58,8 +64,8 @@ public class Utilities {
                 System.out.println("Wrong format");
             }
         }
-
     }
+
 
     public static double getDouble(String prompt, double min, double max) {
         double number = 0;
@@ -107,77 +113,25 @@ public class Utilities {
     }
 
     public static String getString(String sms, int min, int max) {
-        String s = "";
-        while (true) {
-            try {
-                System.out.print(sms);
-                s = scanner.nextLine();
-                if (!s.isEmpty() && s.length() > min && s.length() < max) {
-                    return s;
-                } else {
-                    System.out.printf("Please enter a string of at least %d character and at most %d!!!", min, max);
-                }
-            } catch (Exception e) {
-                System.out.println("PLease enter the valid information!");
-            }
-
-        }
+        return getUserInputString(String.format("^.{%d,%d}$", min, max),sms, "Invalid length of String!", null);
     }
 
     public static String getString(String sms) {
-        return getString(sms, 0, 1000000);
+        return getString(sms, 1, 1000000);
+    }
+
+    public static String getString(String sms, String defaultWhenBlank) {
+        return getUserInputString(String.format("^.{%d,%d}$", 1, 100000),sms, "Invalid length of String!", defaultWhenBlank);
     }
 
     public static String getPhone(String msg) {
-        String s = "";
-        while (true) {
-            try {
-                System.out.print(msg);
-                s = scanner.nextLine();
-                if (!s.isEmpty() && s.matches("^[0-9]{9,11}$")) {
-
-                    return s;
-
-                } else {
-                    System.out.println("Please enter an valid phone number");
-                }
-            } catch (Exception e) {
-                System.out.println("Please enter an valid phone number");
-            }
-        }
+        return getUserInputString("^[0-9]{9,11}$",msg, "Please enter an valid phone number",null );
     }
 
-    public static String inputDate(String msg, int opt) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        LocalDate now = LocalDate.now();
-        LocalDate check = null;
-        String input = "";
-
-        do {
-            try {
-                System.out.println(msg);
-                input = scanner.nextLine().trim();
-
-                if (input.isEmpty() || input.equals("")) {
-                    return null;
-                }
-
-                check = LocalDate.parse(input, formatter);
-
-                if (opt == 1) {
-                    if (check.isAfter(now)) {
-                        System.out.println("Please input a date before the current date!");
-                        continue;
-                    }
-
-                }
-
-                return check.format(formatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Please input a valid date (yyyy/MM/dd).");
-            }
-        } while (true);
+    public static String getPhone(String msg, String defaultWhenBlank) {
+        return getUserInputString("^[0-9]{9,11}$",msg, "Please enter an valid phone number",defaultWhenBlank );
     }
+
 
 }
 
